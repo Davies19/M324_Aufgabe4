@@ -1,16 +1,10 @@
 name: Create version tag
 
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
 
 permissions:
   contents: write
-
-concurrency:
-  group: version-tagging
-  cancel-in-progress: false
 
 jobs:
   tag:
