@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-
+import process from 'node:process'
 function git(...args) {
   return execFileSync('git', args, { encoding: 'utf8' }).trim()
 }
