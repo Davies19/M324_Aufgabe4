@@ -1,6 +1,10 @@
 name: Test, build and tag
 
 on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
   push:
     branches:
       - main
@@ -9,19 +13,26 @@ permissions:
   contents: read
 
 concurrency:
-  group: release-main
+  group: pipeline-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   tests:
     uses: ./.github/workflows/unit-tests.yml
 
+  e2e:
+    uses: ./.github/workflows/e2e-tests.yml
+
+  lint:
+    uses: ./.github/workflows/lint.yml
+
   build:
-    needs: tests
+    needs: [tests, e2e, lint]
     uses: ./.github/workflows/build.yml
 
   tag:
-    needs: [tests, build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [tests, e2e, lint, build]
     permissions:
       contents: write
     uses: ./.github/workflows/tag.yml
